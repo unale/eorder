@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Acil İlaç Rehberi</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1565C0;
+      --primary-dk: #0D47A1;
+      --primary-lt: #E3F2FD;
+      --surface: #ffffff;
+      --bg: #f0f2f5;
+      --text: #1a1a2e;
+      --text-lt: #666;
+      --border: #e0e0e0;
+      --radius: 14px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Header ── */
+    .hdr {
+      background: var(--primary);
+      color: #fff;
+      height: 56px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(21,101,192,.4);
+    }
+    .hdr-title { font-size: 17px; font-weight: 600; }
+    .hdr-btn {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.15);
+      border: none; color: #fff;
+      border-radius: 50%; cursor: pointer;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hdr-btn:active { background: rgba(255,255,255,.3); }
+    .hdr-sp { width: 40px; }
+
+    /* ── Views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+    .scroll { padding: 16px; padding-bottom: 40px; }
+
+    /* ── Complaint Grid ── */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .c-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      border-top: 4px solid;
+      min-height: 96px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      user-select: none;
+    }
+    .c-card:active { transform: scale(.96); }
+    .c-name { font-size: 13px; font-weight: 700; line-height: 1.35; }
+    .c-meta { font-size: 11px; color: var(--text-lt); margin-top: 6px; }
+
+    /* ── Brand List ── */
+    .sec-title {
+      font-size: 12px; font-weight: 700;
+      color: var(--text-lt);
+      text-transform: uppercase; letter-spacing: .8px;
+      margin: 0 0 10px;
+    }
+    .b-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+    .b-card:active { background: var(--primary-lt); }
+    .b-name { font-size: 17px; font-weight: 500; }
+    .b-arr { color: #bbb; font-size: 18px; flex-shrink: 0; }
+
+    /* ── Drug Detail ── */
+    .det-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .det-searched { font-size: 15px; color: var(--text-lt); margin-bottom: 4px; }
+    .det-arrow { font-size: 22px; color: #ccc; margin: 8px 0; }
+    .det-lbl { font-size: 11px; font-weight: 700; color: var(--text-lt); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .det-etken { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+    .det-form { font-size: 13px; color: var(--text-lt); margin-top: 6px; }
+    .det-hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .det-brands-lbl { font-size: 11px; font-weight: 700; color: var(--text-lt); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chip {
+      background: var(--primary-lt); color: var(--primary);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 13px; font-weight: 600;
+    }
+    .chip-active { background: var(--primary); color: #fff; }
+    .det-note { font-size: 13px; color: var(--text-lt); margin-top: 12px; font-style: italic; }
+    .copy-btn {
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: 16px; font-size: 16px; font-weight: 700;
+      cursor: pointer; width: 100%; margin-top: 20px;
+      font-family: inherit;
+    }
+    .copy-btn:active { background: var(--primary-dk); }
+    .copy-btn.ok { background: #2E7D32; }
+
+    /* ── PIN ── */
+    .pin-wrap { max-width: 300px; margin: 48px auto 0; text-align: center; }
+    .pin-ttl { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .pin-sub { font-size: 14px; color: var(--text-lt); margin-bottom: 28px; }
+    .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 4px; }
+    .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--border); transition: background .15s; }
+    .pin-dot.on { background: var(--primary); }
+    .pin-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 20px; }
+    .pin-key {
+      background: var(--surface); border: none;
+      border-radius: var(--radius); height: 60px;
+      font-size: 20px; font-weight: 600; cursor: pointer;
+      box-shadow: var(--shadow); color: var(--text); font-family: inherit;
+    }
+    .pin-key:active { background: var(--primary-lt); transform: scale(.95); }
+    .pin-err { color: #C62828; font-size: 14px; margin-top: 8px; min-height: 20px; }
+
+    /* ── Admin ── */
+    .adm-list { display: flex; flex-direction: column; gap: 10px; }
+    .adm-item {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow); cursor: pointer; user-select: none;
+    }
+    .adm-item:active { background: var(--primary-lt); }
+    .adm-name { font-size: 15px; font-weight: 600; }
+    .adm-meta { font-size: 12px; color: var(--text-lt); margin-top: 2px; }
+    .adm-arr { color: #bbb; font-size: 18px; }
+    .dot-badge { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+
+    /* ── Buttons ── */
+    .btn {
+      border: none; border-radius: var(--radius);
+      padding: 14px; font-size: 15px; font-weight: 700;
+      cursor: pointer; width: 100%; margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .btn:active { opacity: .8; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: #C62828; color: #fff; }
+    .btn-sec { background: var(--surface); color: var(--primary); border: 2px solid var(--primary); }
+    .btn-ghost { background: transparent; color: var(--text-lt); }
+
+    /* ── Forms ── */
+    .fg { margin-bottom: 18px; }
+    .flbl { display: block; font-size: 12px; font-weight: 700; color: var(--text-lt); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+    .finp {
+      width: 100%; border: 2px solid var(--border);
+      border-radius: 10px; padding: 12px 14px;
+      font-size: 15px; font-family: inherit; color: var(--text);
+      outline: none; background: var(--surface);
+    }
+    .finp:focus { border-color: var(--primary); }
+    .tags-box {
+      border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px; min-height: 52px; background: var(--surface);
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center; cursor: text;
+    }
+    .tags-box:focus-within { border-color: var(--primary); }
+    .tag-item {
+      background: var(--primary-lt); color: var(--primary);
+      border-radius: 16px; padding: 4px 10px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .tag-rm { cursor: pointer; font-size: 16px; line-height: 1; opacity: .7; }
+    .tag-rm:hover { opacity: 1; }
+    .tag-inp {
+      border: none; outline: none; font-size: 14px;
+      font-family: inherit; background: transparent;
+      flex: 1; min-width: 120px; color: var(--text);
+    }
+    .hint { font-size: 12px; color: var(--text-lt); margin-top: 5px; }
+
+    /* ── Color Picker ── */
+    .clr-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .clr-opt {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 3px solid transparent; cursor: pointer;
+    }
+    .clr-opt.sel { border-color: var(--text); transform: scale(1.15); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #323232; color: #fff;
+      padding: 12px 22px; border-radius: 24px;
+      font-size: 14px; font-weight: 500;
+      z-index: 999; opacity: 0; pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap; max-width: calc(100% - 32px);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Confirm ── */
+    .ovl {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 200; display: flex; align-items: flex-end; padding: 20px;
+    }
+    .ovl-box { background: var(--surface); border-radius: 20px; padding: 24px; width: 100%; max-width: 448px; margin: 0 auto; }
+    .ovl-ttl { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .ovl-txt { font-size: 14px; color: var(--text-lt); margin-bottom: 20px; }
+
+    /* ── Empty ── */
+    .empty { text-align: center; padding: 48px 24px; color: var(--text-lt); }
+    .empty-ttl { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+
+    /* ── Section sep ── */
+    .sep { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* ── Search ── */
+    .search-wrap {
+      position: relative; display: flex; align-items: center;
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow); margin-bottom: 16px;
+      border: 2px solid transparent; transition: border-color .15s;
+    }
+    .search-wrap:focus-within { border-color: var(--primary); }
+    .search-icon { position: absolute; left: 14px; font-size: 16px; pointer-events: none; }
+    .search-inp {
+      width: 100%; padding: 14px 40px 14px 40px;
+      border: none; outline: none; background: transparent;
+      font-size: 15px; font-family: inherit; color: var(--text);
+      border-radius: var(--radius);
+    }
+    .search-clear {
+      position: absolute; right: 10px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-lt); font-size: 16px; padding: 6px;
+    }
+    .sr-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px;
+      box-shadow: var(--shadow); cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sr-card:active { background: var(--primary-lt); }
+    .sr-name { font-size: 17px; font-weight: 500; }
+    .sr-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+    .sr-cat {
+      font-size: 11px; font-weight: 700; color: #fff;
+      border-radius: 10px; padding: 2px 8px;
+    }
+    .sr-etken { font-size: 12px; color: var(--text-lt); }
+    .sr-arr { color: #bbb; font-size: 18px; flex-shrink: 0; }
+    .sr-empty { text-align: center; padding: 32px 16px; color: var(--text-lt); font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ VIEW: MAIN ══ -->
+<div id="view-main" class="view active">
+  <div class="hdr">
+    <div class="hdr-sp"></div>
+    <span class="hdr-title">Acil İlaç Rehberi</span>
+    <button class="hdr-btn" data-action="go-admin" title="Admin">&#9881;</button>
+  </div>
+  <div class="scroll">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-inp" class="search-inp" placeholder="İlaç veya etken madde ara…" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="search-clear" id="search-clear" style="display:none">&#10005;</button>
+    </div>
+    <div id="search-results" style="display:none"></div>
+    <div id="cmp-grid" class="grid"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: BRANDS ══ -->
+<div id="view-brands" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-main">&#8592;</button>
+    <span class="hdr-title" id="bv-title"></span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <p class="sec-title">Piyasa / Jenerik İsme Göre Ara</p>
+    <div id="brands-list"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: DRUG DETAIL ══ -->
+<div id="view-drug" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-brands">&#8592;</button>
+    <span class="hdr-title">İlaç Bilgisi</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <div id="drug-detail"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: PIN ══ -->
+<div id="view-pin" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-main">&#8592;</button>
+    <span class="hdr-title">Admin Girişi</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <div class="pin-wrap">
+      <div class="pin-ttl">PIN Giriniz</div>
+      <div class="pin-sub">Varsayılan: 1234</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot"></div><div class="pin-dot"></div>
+        <div class="pin-dot"></div><div class="pin-dot"></div>
+      </div>
+      <div class="pin-err" id="pin-err"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" data-pin="1">1</button>
+        <button class="pin-key" data-pin="2">2</button>
+        <button class="pin-key" data-pin="3">3</button>
+        <button class="pin-key" data-pin="4">4</button>
+        <button class="pin-key" data-pin="5">5</button>
+        <button class="pin-key" data-pin="6">6</button>
+        <button class="pin-key" data-pin="7">7</button>
+        <button class="pin-key" data-pin="8">8</button>
+        <button class="pin-key" data-pin="9">9</button>
+        <button class="pin-key" data-pin="0" style="grid-column:2">0</button>
+        <button class="pin-key" id="pin-del">&#9003;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: ADMIN HOME ══ -->
+<div id="view-admin" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-main">&#8592;</button>
+    <span class="hdr-title">Admin Paneli</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <button class="btn btn-primary" id="btn-add-cmp">+ Yeni Şikayet Ekle</button>
+    <p class="sec-title" style="margin-top:8px">Şikayetler</p>
+    <div id="admin-cmp-list" class="adm-list"></div>
+    <hr class="sep">
+    <p class="sec-title">Ayarlar</p>
+    <button class="btn btn-sec" id="btn-change-pin">PIN Değiştir</button>
+    <button class="btn btn-danger" id="btn-reset">Fabrika Ayarlarına Dön</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: ADMIN COMPLAINT ══ -->
+<div id="view-admin-cmp" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-admin">&#8592;</button>
+    <span class="hdr-title" id="acmp-title"></span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <button class="btn btn-primary" id="btn-add-drug">+ Yeni İlaç Ekle</button>
+    <p class="sec-title" style="margin-top:8px">İlaçlar</p>
+    <div id="admin-drug-list" class="adm-list"></div>
+    <hr class="sep">
+    <button class="btn btn-sec" id="btn-edit-cmp">Şikayeti Düzenle</button>
+    <button class="btn btn-danger" id="btn-del-cmp">Şikayeti Sil</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: DRUG FORM ══ -->
+<div id="view-drug-form" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-admin-cmp">&#8592;</button>
+    <span class="hdr-title" id="df-title">İlaç Ekle</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <div class="fg">
+      <label class="flbl">Etken Madde Adı *</label>
+      <input type="text" class="finp" id="f-etken" placeholder="örn: Metoklopramid">
+    </div>
+    <div class="fg">
+      <label class="flbl">Ana Piyasa İsmi * <span style="font-weight:400;text-transform:none">(listede gösterilecek)</span></label>
+      <input type="text" class="finp" id="f-primary" placeholder="örn: Metpamid">
+    </div>
+    <div class="fg">
+      <label class="flbl">Diğer Piyasa / Jenerik İsimleri</label>
+      <div class="tags-box" id="tags-box">
+        <input type="text" id="tag-inp" class="tag-inp" placeholder="İsim yazıp Enter">
+      </div>
+      <p class="hint">Her ismi girdikten sonra Enter'a basın</p>
+    </div>
+    <div class="fg">
+      <label class="flbl">Form / Doz (isteğe bağlı)</label>
+      <input type="text" class="finp" id="f-form" placeholder="örn: 10 mg/2 mL IV Ampul">
+    </div>
+    <div class="fg">
+      <label class="flbl">Notlar (isteğe bağlı)</label>
+      <input type="text" class="finp" id="f-note" placeholder="örn: Dikkat: opioid">
+    </div>
+    <button class="btn btn-primary" id="btn-save-drug">Kaydet</button>
+    <button class="btn btn-danger" id="btn-del-drug" style="display:none">İlacı Sil</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: COMPLAINT FORM ══ -->
+<div id="view-cmp-form" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" id="cf-back">&#8592;</button>
+    <span class="hdr-title" id="cf-title">Şikayet Ekle</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <div class="fg">
+      <label class="flbl">Şikayet Adı *</label>
+      <input type="text" class="finp" id="f-cname" placeholder="örn: Bulantı / Kusma">
+    </div>
+    <div class="fg">
+      <label class="flbl">Renk</label>
+      <div class="clr-row" id="clr-picker"></div>
+    </div>
+    <button class="btn btn-primary" id="btn-save-cmp">Kaydet</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: CHANGE PIN ══ -->
+<div id="view-change-pin" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" data-action="go-admin">&#8592;</button>
+    <span class="hdr-title">PIN Değiştir</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll">
+    <div class="fg">
+      <label class="flbl">Mevcut PIN</label>
+      <input type="password" inputmode="numeric" maxlength="4" class="finp" id="f-old-pin" placeholder="••••">
+    </div>
+    <div class="fg">
+      <label class="flbl">Yeni PIN (4 rakam)</label>
+      <input type="password" inputmode="numeric" maxlength="4" class="finp" id="f-new-pin" placeholder="••••">
+    </div>
+    <div class="fg">
+      <label class="flbl">Yeni PIN (tekrar)</label>
+      <input type="password" inputmode="numeric" maxlength="4" class="finp" id="f-new-pin2" placeholder="••••">
+    </div>
+    <button class="btn btn-primary" id="btn-save-pin">Güncelle</button>
+  </div>
+</div>
+
+<!-- ══ Toast ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ Confirm Dialog ══ -->
+<div class="ovl" id="ovl" style="display:none">
+  <div class="ovl-box">
+    <div class="ovl-ttl" id="ovl-ttl"></div>
+    <div class="ovl-txt" id="ovl-txt"></div>
+    <button class="btn btn-danger" id="ovl-ok"></button>
+    <button class="btn btn-ghost" id="ovl-cancel">Vazgeç</button>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DATA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const COLORS = [
+  '#00897B','#E65100','#C62828','#6A1B9A',
+  '#1565C0','#00838F','#0277BD','#558B2F',
+  '#AD1457','#B71C1C','#4E342E','#263238'
+];
+
+const DEFAULTS = {
+  adminPin: '1234',
+  complaints: [
+    { id:'bulanti', name:'Bulantı / Kusma', color:'#00897B', drugs:[
+      { id:'b1', etken:'Metoklopramid',  primary:'Metpamid',           brands:['Metpamid','Plasil','Anti-Nausea'],             form:'10 mg/2 mL IV/IM Ampul',       note:'' },
+      { id:'b2', etken:'Ondansetron',    primary:'Zofran',              brands:['Zofran','Kemoset','Osetron'],                  form:'4 mg/2 mL IV/IM Ampul',        note:'' },
+      { id:'b3', etken:'Dimenhidrinat',  primary:'Dramamıne',           brands:['Dramamıne','Dimenin'],                        form:'50 mg Ampul',                   note:'' }
+    ]},
+    { id:'agri', name:'Ağrı', color:'#E65100', drugs:[
+      { id:'a1', etken:'Parasetamol',       primary:'Parol',            brands:['Parol','Paracerol','Minoset','Panadol'],       form:'10 mg/mL IV İnfüzyon 100 mL',  note:'' },
+      { id:'a2', etken:'Tramadol',          primary:'Contramal',        brands:['Contramal','Tramosel','Ramadex'],              form:'100 mg/2 mL IV/IM Ampul',      note:'' },
+      { id:'a3', etken:'Fentanil',          primary:'Fentanyl',         brands:['Fentanyl','Fentanyl-PF','Fentaver'],           form:'500 mcg/10 mL IV/IM Ampul',    note:'Dikkat: Opioid' },
+      { id:'a4', etken:'Morfin Sülfat',     primary:'Morfin',           brands:['Morfin'],                                     form:'10 mg/1 mL IV/SC/IM Ampul',    note:'Dikkat: Opioid' },
+      { id:'a5', etken:'Tenoksikam',        primary:'Tilcotil',         brands:['Tilcotil'],                                   form:'20 mg IV Flakon',               note:'NSAID' },
+      { id:'a6', etken:'Diklofenak Sodyum', primary:'Diklorin',         brands:['Diklorin','Voltaren','Diklofen'],              form:'75 mg/3 mL IM Ampul',           note:'NSAID' },
+      { id:'a7', etken:'Doripenem',         primary:'Dorifen',          brands:['Dorifen','Doribax'],                          form:'500 mg/100 mL IV İnfüzyon',     note:'Karbapenem' }
+    ]},
+    { id:'ates', name:'Ateş', color:'#C62828', drugs:[
+      { id:'t1', etken:'Parasetamol', primary:'Parol',   brands:['Parol','Paracerol','Minoset','Panadol'], form:'10 mg/mL IV İnfüzyon 100 mL', note:'' },
+      { id:'t2', etken:'Doripenem',   primary:'Dorifen', brands:['Dorifen','Doribax'],                     form:'500 mg/100 mL IV İnfüzyon',   note:'Karbapenem' }
+    ]},
+    { id:'nobet', name:'Nöbet / Konvülziyon', color:'#6A1B9A', drugs:[
+      { id:'n1', etken:'Diazepam',      primary:'Diazem',              brands:['Diazem','Valium'],                    form:'10 mg/2 mL IV/IM Ampul',  note:'' },
+      { id:'n2', etken:'Midazolam',     primary:'Dormicum',            brands:['Dormicum','Zolamid','Lazemil'],       form:'5 mg/5 mL IV Ampul',      note:'' },
+      { id:'n3', etken:'Fenitoin',      primary:'Fenitoin (Dilantin)', brands:['Dilantin','Epitoin','Toinex'],        form:'250 mg/5 mL IV Ampul',    note:'' },
+      { id:'n4', etken:'Valproik Asit', primary:'Depakin',             brands:['Depakin','Epilepkin','Valprocan'],    form:'400 mg/4 mL IV Ampul',    note:'' },
+      { id:'n5', etken:'Levetirasetam', primary:'Keppra',              brands:['Keppra','Levetam','Epilem'],          form:'500 mg/5 mL IV Flakon',   note:'' }
+    ]},
+    { id:'tansiyon', name:'Yüksek Tansiyon', color:'#1565C0', drugs:[
+      { id:'hy1', etken:'Amlodipin',    primary:'Norvasc',               brands:['Norvasc','Norlopin','Amlodisin'],             form:'5–10 mg Tablet',              note:'Kalsiyum kanal blokeri' },
+      { id:'hy2', etken:'Ramipril',     primary:'Delix',                 brands:['Delix','Race','Tritace'],                    form:'5 mg Tablet',                 note:'ACE inhibitörü' },
+      { id:'hy3', etken:'Metoprolol',   primary:'Beloc',                 brands:['Beloc','Mekard','Metloc','Saneloc'],         form:'5 mg/5 mL IV / 50 mg Tablet', note:'Beta-bloker' },
+      { id:'hy4', etken:'Esmolol',      primary:'Esmobloc / Esmolol',    brands:['Esmobloc'],                                  form:'10 mg/mL IV İnfüzyon',        note:'Kısa etkili beta-bloker' },
+      { id:'hy5', etken:'Nitrogliserin',primary:'Nitrat / Nitrolingual', brands:['Nitrolingual','Trinity','Perlinganit'],      form:'10 mg/10 mL IV / SL sprey',   note:'Vazodilatör' },
+      { id:'hy6', etken:'Nikardipin',   primary:'Nicardipine',           brands:['Nicardipine Aguettant'],                     form:'10 mg/10 mL IV Ampul',        note:'Kalsiyum kanal blokeri' }
+    ]},
+    { id:'ritim', name:'Ritim Bozukluğu', color:'#00838F', drugs:[
+      { id:'r1', etken:'Amiodaron',   primary:'Cordarone',           brands:['Cordarone','Amiodarone'],          form:'150 mg/3 mL IV Ampul',   note:'' },
+      { id:'r2', etken:'Adenozin',    primary:'Adenocor / Adenozin', brands:['Adenocor','Adozin'],               form:'6 mg/2 mL IV Ampul',     note:'SVT tedavisinde' },
+      { id:'r3', etken:'Metoprolol',  primary:'Beloc',               brands:['Beloc','Mekard','Metloc'],         form:'5 mg/5 mL IV Ampul',     note:'Beta-bloker' },
+      { id:'r4', etken:'Diltiazem',   primary:'Diltizem',            brands:['Diltizem','Dilemy','Tiacard'],     form:'25 mg/5 mL IV Ampul',    note:'Kalsiyum kanal blokeri' },
+      { id:'r5', etken:'Digoksin',    primary:'Digoksin',            brands:['Digoksin','Lanoxin'],              form:'0.5 mg/2 mL IV Ampul',   note:'' }
+    ]},
+    { id:'solunum', name:'Solunum Sıkıntısı', color:'#0277BD', drugs:[
+      { id:'s1', etken:'Budesonid',            primary:'Pulmicort',  brands:['Pulmicort','Brecur','Cortair','Pulmien'],    form:'0.5 mg/2 mL Nebülizasyon',   note:'' },
+      { id:'s2', etken:'İpratropyum',          primary:'Atrovent',   brands:['Atrovent','Ipratom','Ipravent','Tropisal'], form:'0.5 mg/2 mL Nebülizasyon',   note:'' },
+      { id:'s3', etken:'Salbutamol',           primary:'Ventolin',   brands:['Ventolin','Astolin'],                      form:'2.5 mg/2.5 mL Nebülizasyon', note:'' },
+      { id:'s4', etken:'Epinefrin (Adrenalin)',primary:'Adrenalin',  brands:['Adrenalin'],                               form:'1 mg/1 mL IV/IM Ampul',      note:'Ağır bronkospazm, anafilaksi' }
+    ]},
+    { id:'enfeksiyon', name:'Enfeksiyon / Sepsis', color:'#558B2F', drugs:[
+      { id:'e1',  etken:'Sefazolin',              primary:'Cezol',      brands:['Cezol','Sefazol'],                          form:'1 g IV/IM Flakon',          note:'I. kuşak sefalosporin' },
+      { id:'e2',  etken:'Seftriakson',            primary:'Rocephin',   brands:['Rocephin','Desenin','Armaseft','Iespor'],   form:'1 g IV/IM Flakon',          note:'III. kuşak sefalosporin' },
+      { id:'e3',  etken:'Gentamisin',             primary:'Gentamisin', brands:['Gentamisin','Genta','Genthaver'],            form:'80 mg/2 mL IV/IM Ampul',    note:'Aminoglikozid' },
+      { id:'e4',  etken:'Piperasilin-Tazobaktam', primary:'Tazocin',    brands:['Tazocin','Tazilix'],                        form:'4g/0.5g IV Flakon',         note:'Geniş spektrum' },
+      { id:'e5',  etken:'Moksifloksasin',         primary:'Avelox',     brands:['Avelox','Moxilox'],                         form:'400 mg/250 mL IV İnfüzyon', note:'Florokinolon' },
+      { id:'e6',  etken:'Siprofloksasin',         primary:'Cipro',      brands:['Cipro','Flotic','Siflo'],                   form:'200 mg/100 mL IV İnfüzyon', note:'Florokinolon' },
+      { id:'e7',  etken:'Metronidazol',           primary:'Flagyl',     brands:['Flagyl','Polgyl','Metris'],                 form:'%0.5 IV İnfüzyon 100 mL',   note:'Anaerobik enfeksiyon' },
+      { id:'e8',  etken:'Ampisilin-Sulbaktam',    primary:'Duobakt',    brands:['Duobakt','Devasin'],                        form:'1g/0.5g IV/IM Flakon',      note:'Beta-laktam kombinasyonu' },
+      { id:'e9',  etken:'Doripenem',              primary:'Dorifen',    brands:['Dorifen','Doribax'],                        form:'500 mg/100 mL IV İnfüzyon', note:'Karbapenem' },
+      { id:'e10', etken:'İmipenem-Silastatin',    primary:'İmipenem',   brands:['İmipenem','Tienam'],                        form:'500 mg IV Flakon',          note:'Karbapenem' }
+    ]},
+    { id:'alerji', name:'Alerji / Anafilaksi', color:'#AD1457', drugs:[
+      { id:'al1', etken:'Epinefrin (Adrenalin)', primary:'Adrenalin', brands:['Adrenalin'],                          form:'1 mg/1 mL IV/IM Ampul',    note:'İlk tercih — anafilaksi' },
+      { id:'al2', etken:'Deksametazon',          primary:'Dekort',    brands:['Dekort','Deksametazon-PF'],           form:'8 mg/2 mL IV/IM Ampul',    note:'Kortikosteroid' },
+      { id:'al3', etken:'Metilprednizolon',      primary:'Prednol',   brands:['Prednol','Precort','Solu-Medrol'],    form:'40 mg IV Ampul',           note:'Kortikosteroid' },
+      { id:'al4', etken:'Feniramin',             primary:'Avil',      brands:['Avil','Feniramin-PF'],                form:'45.5 mg/2 mL IV/IM Ampul', note:'Antihistamin' }
+    ]},
+    { id:'kanama', name:'Kanama / Pıhtılaşma', color:'#B71C1C', drugs:[
+      { id:'k1', etken:'Enoksaparin',          primary:'Clexane',         brands:['Clexane','Enox'],                          form:'4000–6000 IU SC Enjektör', note:'DMAH' },
+      { id:'k2', etken:'Heparin',              primary:'Heparin',         brands:['Heparin','Koparin','Vasparin'],             form:'25000 IU/5 mL IV Flakon',  note:'Standart heparin' },
+      { id:'k3', etken:'Klopidogrel',          primary:'Plavix',          brands:['Plavix','Opirel'],                         form:'75 mg Tablet',              note:'Antiplatelet' },
+      { id:'k4', etken:'Tikagrelör',           primary:'Brilinta',        brands:['Brilinta','Talderol'],                     form:'90 mg Tablet',              note:'Antiplatelet' },
+      { id:'k5', etken:'Asetilsalisilik Asit', primary:'Aspirin',         brands:['Aspirin','Coraspin','Ecopirin'],            form:'100–300 mg Tablet',         note:'Antiplatelet' },
+      { id:'k6', etken:'Alteplaz (rt-PA)',     primary:'Actilyse / TPA',  brands:['Actilyse'],                                form:'10–50 mg IV Flakon',        note:'Trombolitik' }
+    ]},
+    { id:'antidot', name:'Antidot / Zehirlenme', color:'#4E342E', drugs:[
+      { id:'x1', etken:'Naloksan',              primary:'Naloxone',                brands:['Naloxone','Naloxone Aguettant'],     form:'0.4 mg/mL IV Ampul',       note:'Opioid antidotu' },
+      { id:'x2', etken:'Flumazenil',            primary:'Anexate',                 brands:['Anexate','Mazenil'],                form:'0.5 mg/5 mL IV Ampul',     note:'Benzodiazepin antidotu' },
+      { id:'x3', etken:'N-Asetilsistein',       primary:'Mucinac / NAC',           brands:['Mucinac','Acetylcysteine'],         form:'300 mg/3 mL IV Ampul',     note:'Parasetamol zehirlenmesi antidotu' },
+      { id:'x4', etken:'Aktif Kömür',           primary:'Aquacarbo / Aktif Kömür', brands:['Aquacarbo','Karbonex'],             form:'50 g/240 mL Oral',         note:'Oral yolla alınan zehirler' },
+      { id:'x5', etken:'Atropin',               primary:'Atropin',                 brands:['Atropin Sülfat','Atropine'],        form:'1 mg/1 mL IV/IM/SC Ampul', note:'Organofosfat zehirlenmesi, bradikardi' },
+      { id:'x6', etken:'Fitomenadion (Vit K1)', primary:'Konakion / Kvit',         brands:['Konakion','Kvit','Selovita-K1'],    form:'10 mg/1 mL IV/IM Ampul',   note:'Antikoagülan antidotu' }
+    ]},
+    { id:'anestezi', name:'Anestezi / Sedasyon', color:'#263238', drugs:[
+      { id:'an1', etken:'Propofol',   primary:'Propofol',  brands:['Propofol','Diprivan','Propofol-PF'],           form:'%1 200 mg/20 mL IV Ampul',     note:'' },
+      { id:'an2', etken:'Ketamin',    primary:'Ketalar',   brands:['Ketalar','Ketax'],                             form:'500 mg/10 mL IV/IM Ampul',     note:'' },
+      { id:'an3', etken:'Midazolam',  primary:'Dormicum',  brands:['Dormicum','Zolamid','Lazemil'],                form:'5 mg/5 mL IV Ampul',           note:'' },
+      { id:'an4', etken:'Roküronyum', primary:'Esmeron',   brands:['Esmeron','Muscuron'],                          form:'50 mg/5 mL IV Flakon',         note:'Nöromüsküler blokaj' },
+      { id:'an5', etken:'Lidokain',   primary:'Xylokain',  brands:['Xylokain','Jetokain','Lidon','Pricain'],       form:'40–100 mg/2–5 mL IV/IM Ampul', note:'' }
+    ]},
+    { id:'sivielektrolit', name:'Sıvı / Elektrolit', color:'#00695C', drugs:[
+      { id:'se1', etken:'%0.9 Sodyum Klorür (İzotonik SF)',     primary:'SF / İzotonik',    brands:['SF','İzotonik NaCl','Serum Fizyolojik','Turkfleks SF','Polifleks İzotonik'], form:'100 mL / 250 mL / 500 mL / 1000 mL torba veya şişe', note:'İzotonik (%0.9 NaCl = 154 mEq/L Na⁺ + 154 mEq/L Cl⁻)' },
+      { id:'se2', etken:'%0.45 Sodyum Klorür (Hipotonik SF)',   primary:'%0.45 NaCl',       brands:['Yarı İzotonik NaCl','%0.45 SF','Hipotonik NaCl'],                           form:'500 mL / 1000 mL torba',                              note:'Hipotonik; idame sıvısı, dikkatli kullan' },
+      { id:'se3', etken:'%3 Sodyum Klorür (Hipertonik SF)',     primary:'%3 NaCl',          brands:['%3 NaCl','Hipertonik SF','Hypersal'],                                       form:'100 mL / 250 mL torba',                               note:'Hipertonik; semptomatik hiponatremi, beyin ödemi' },
+      { id:'se4', etken:'%20 Sodyum Klorür (Konsantre NaCl)',   primary:'%20 NaCl konsantre', brands:['Konsantre NaCl','%20 NaCl Ampul','Sodyum Klorür %20'],                   form:'10 mL / 20 mL ampul (seyreltilerek IV)',               note:'Hazır torbalara veya SF\'e eklenerek kullanılır' },
+      { id:'se5', etken:'Ringer Laktat',                         primary:'Ringer Laktat',    brands:['Ringer Laktat','Laktatlı Ringer','Turkfleks RL','Polifleks RL'],            form:'500 mL / 1000 mL torba',                              note:'Dengeli kristaloid; travma, sıvı resüsitasyonu' },
+      { id:'se6', etken:'Magnezyum Sülfat',                      primary:'MgSO4',            brands:['Magnezyum Sülfat','Magnezym Sülfat'],                                       form:'15% 10 mL ampul / %50 10 mL ampul',                   note:'Eklamsi, Torsades, ağır astım' },
+      { id:'se7', etken:'Potasyum Klorür',                       primary:'KCl',              brands:['Potasyum Klorür','KCl Ampul'],                                              form:'%7.46 10 mL ampul (seyreltilerek IV)',                 note:'Mutlaka seyreltilerek verin; direkt IV push öldürür' },
+      { id:'se8', etken:'Sodyum Bikarbonat',                     primary:'Bikarbonat',       brands:['Sodyum Bikarbonat','Sodyum Bikar.','%8.4 NaHCO3'],                          form:'%8.4 10 mL ampul / 250 mL şişe',                      note:'Metabolik asidoz, hiperkalemi, TCA zehirlenmesi' },
+      { id:'se9', etken:'Kalsiyum Glukonat',                     primary:'Kalsiyum Glukonat', brands:['Kalsiyum Glukonat','Calpines','Ca-Gluconat'],                             form:'%10 10 mL ampul',                                     note:'Hiperkalemi, hipokalsemi, kalsiyum kanal blokeri OD' }
+    ]}
+  ]
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let D; // app data
+let st = { cmpId: null, drugId: null, brandClicked: null, editCmpId: null, editDrugId: null };
+let pinBuf = '';
+let confirmCb = null;
+let tagList = [];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STORAGE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const DATA_VERSION = 3;
+
+function load() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('acilData'));
+    if (!stored || (stored.version || 0) < DATA_VERSION) {
+      // Eski format veya versiyon yok — default'a dön, custom PIN koru
+      const pin = stored && stored.adminPin ? stored.adminPin : DEFAULTS.adminPin;
+      D = clone(DEFAULTS);
+      D.adminPin = pin;
+      D.version = DATA_VERSION;
+      save();
+    } else {
+      D = stored;
+    }
+  } catch(_) {
+    D = clone(DEFAULTS);
+    D.version = DATA_VERSION;
+  }
+}
+function save() { localStorage.setItem('acilData', JSON.stringify(D)); }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function cmp(id) { return D.complaints.find(c => c.id === id); }
+function drug(cid, did) { const c = cmp(cid); return c && c.drugs.find(d => d.id === did); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// NAV
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function nav(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDER: MAIN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderMain() {
+  document.getElementById('cmp-grid').innerHTML = D.complaints.map(c => {
+    const bc = c.drugs.reduce((n,d) => n + d.brands.length, 0);
+    return `<div class="c-card" style="border-top-color:${c.color}" data-cid="${c.id}">
+      <div class="c-name">${x(c.name)}</div>
+      <div class="c-meta">${c.drugs.length} etken madde · ${bc} piyasa ismi</div>
+    </div>`;
+  }).join('');
+  nav('main');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDER: BRANDS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openComplaint(cid) {
+  st.cmpId = cid;
+  const c = cmp(cid);
+  document.getElementById('bv-title').textContent = c.name;
+  const el = document.getElementById('brands-list');
+  if (!c.drugs.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ttl">İlaç yok</div><p>Admin panelinden ilaç ekleyebilirsiniz.</p></div>';
+    nav('brands'); return;
+  }
+  el.innerHTML = c.drugs.map(d =>
+    `<div class="b-card" data-cid="${cid}" data-did="${d.id}" data-brand="${x(d.primary || d.brands[0])}">
+      <div class="b-name">${x(d.primary || d.brands[0])}</div>
+      <div class="b-arr">›</div>
+    </div>`
+  ).join('');
+  nav('brands');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDER: DRUG DETAIL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openDrug(cid, did, brand) {
+  st.cmpId = cid; st.drugId = did; st.brandClicked = brand;
+  const d = drug(cid, did);
+  const chips = d.brands.map(b =>
+    `<span class="chip ${b===brand?'chip-active':''}">${x(b)}</span>`
+  ).join('');
+  document.getElementById('drug-detail').innerHTML = `
+    <div class="det-card">
+      <div class="det-searched">"${x(brand)}"</div>
+      <div class="det-arrow">↓</div>
+      <div class="det-lbl">E-Order'a yazılacak etken madde adı</div>
+      <div class="det-etken">${x(d.etken)}</div>
+      ${d.form ? `<div class="det-form">${x(d.form)}</div>` : ''}
+      <hr class="det-hr">
+      <div class="det-brands-lbl">Bu etken maddenin tüm piyasa isimleri</div>
+      <div class="chips">${chips}</div>
+      ${d.note ? `<hr class="det-hr"><div class="det-note">${x(d.note)}</div>` : ''}
+      <button class="copy-btn" id="copy-btn">Etken madde adını kopyala</button>
+    </div>`;
+  document.getElementById('copy-btn').addEventListener('click', () => copyEtken(d.etken));
+  nav('drug');
+}
+
+function copyEtken(etken) {
+  const btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(etken).then(() => {
+    btn.textContent = 'Kopyalandı!';
+    btn.classList.add('ok');
+    toast(etken + ' kopyalandı');
+    setTimeout(() => { btn.textContent = 'Etken madde adını kopyala'; btn.classList.remove('ok'); }, 2200);
+  }).catch(() => toast('Kopyalama başarısız'));
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openPin() {
+  pinBuf = '';
+  document.getElementById('pin-err').textContent = '';
+  syncDots();
+  nav('pin');
+}
+
+function pinPress(n) {
+  if (pinBuf.length >= 4) return;
+  pinBuf += n;
+  syncDots();
+  if (pinBuf.length === 4) {
+    setTimeout(() => {
+      if (pinBuf === D.adminPin) { pinBuf = ''; syncDots(); renderAdmin(); }
+      else { document.getElementById('pin-err').textContent = 'Hatalı PIN'; pinBuf = ''; syncDots(); }
+    }, 150);
+  }
+}
+
+function pinDel() { pinBuf = pinBuf.slice(0,-1); document.getElementById('pin-err').textContent = ''; syncDots(); }
+
+function syncDots() {
+  document.querySelectorAll('#pin-dots .pin-dot').forEach((d,i) => d.classList.toggle('on', i < pinBuf.length));
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ADMIN HOME
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderAdmin() {
+  document.getElementById('admin-cmp-list').innerHTML = D.complaints.map(c => `
+    <div class="adm-item" data-admin-cid="${c.id}">
+      <div><div class="adm-name"><span class="dot-badge" style="background:${c.color}"></span>${x(c.name)}</div>
+      <div class="adm-meta">${c.drugs.length} ilaç</div></div>
+      <div class="adm-arr">›</div>
+    </div>`).join('');
+  nav('admin');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ADMIN: COMPLAINT DETAIL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openAdminCmp(cid) {
+  st.editCmpId = cid;
+  const c = cmp(cid);
+  document.getElementById('acmp-title').textContent = c.name;
+  document.getElementById('admin-drug-list').innerHTML = c.drugs.length
+    ? c.drugs.map(d => `
+        <div class="adm-item" data-admin-did="${d.id}">
+          <div><div class="adm-name">${x(d.etken)}</div>
+          <div class="adm-meta">${d.brands.join(' · ')}</div></div>
+          <div class="adm-arr">›</div>
+        </div>`).join('')
+    : '<div class="empty"><p>Henüz ilaç eklenmedi</p></div>';
+  nav('admin-cmp');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ADMIN: COMPLAINT FORM
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openAddCmp() {
+  st.editCmpId = null;
+  document.getElementById('cf-title').textContent = 'Yeni Şikayet';
+  document.getElementById('f-cname').value = '';
+  document.getElementById('cf-back').dataset.action = 'go-admin';
+  renderClrPicker(COLORS[0]);
+  nav('cmp-form');
+}
+
+function openEditCmp() {
+  const c = cmp(st.editCmpId);
+  document.getElementById('cf-title').textContent = 'Şikayeti Düzenle';
+  document.getElementById('f-cname').value = c.name;
+  document.getElementById('cf-back').dataset.action = 'go-admin-cmp';
+  renderClrPicker(c.color);
+  nav('cmp-form');
+}
+
+function renderClrPicker(sel) {
+  document.getElementById('clr-picker').innerHTML = COLORS.map(c =>
+    `<div class="clr-opt ${c===sel?'sel':''}" style="background:${c}" data-color="${c}"></div>`
+  ).join('');
+}
+
+function selColor(el) {
+  document.querySelectorAll('.clr-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function getSelColor() {
+  const el = document.querySelector('.clr-opt.sel');
+  return el ? el.dataset.color : COLORS[0];
+}
+
+function saveCmp() {
+  const name = document.getElementById('f-cname').value.trim();
+  if (!name) { toast('Şikayet adı gerekli'); return; }
+  const color = getSelColor();
+  if (st.editCmpId) {
+    const c = cmp(st.editCmpId);
+    c.name = name; c.color = color;
+  } else {
+    D.complaints.push({ id: uid(), name, color, drugs: [] });
+  }
+  save(); toast('Kaydedildi'); renderAdmin();
+}
+
+function deleteCmp() {
+  const c = cmp(st.editCmpId);
+  confirm(`"${c.name}" silinsin mi?`, 'Bu şikayet ve içindeki ilaçlar kalıcı olarak silinecek.', () => {
+    D.complaints = D.complaints.filter(c => c.id !== st.editCmpId);
+    save(); toast('Şikayet silindi'); renderAdmin();
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ADMIN: DRUG FORM
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openAddDrug() {
+  st.editDrugId = null;
+  document.getElementById('df-title').textContent = 'Yeni İlaç';
+  document.getElementById('f-etken').value = '';
+  document.getElementById('f-primary').value = '';
+  document.getElementById('f-form').value = '';
+  document.getElementById('f-note').value = '';
+  document.getElementById('btn-del-drug').style.display = 'none';
+  tagList = [];
+  renderTags();
+  nav('drug-form');
+}
+
+function openEditDrug(did) {
+  st.editDrugId = did;
+  const d = drug(st.editCmpId, did);
+  document.getElementById('df-title').textContent = 'İlacı Düzenle';
+  document.getElementById('f-etken').value = d.etken;
+  document.getElementById('f-primary').value = d.primary || '';
+  document.getElementById('f-form').value = d.form || '';
+  document.getElementById('f-note').value = d.note || '';
+  document.getElementById('btn-del-drug').style.display = 'block';
+  tagList = [...d.brands];
+  renderTags();
+  nav('drug-form');
+}
+
+function renderTags() {
+  const box = document.getElementById('tags-box');
+  box.innerHTML = tagList.map((t,i) =>
+    `<span class="tag-item">${x(t)}<span class="tag-rm" data-idx="${i}">×</span></span>`
+  ).join('') + `<input type="text" id="tag-inp" class="tag-inp" placeholder="İsim yazıp Enter">`;
+  document.getElementById('tag-inp').addEventListener('keydown', onTagKey);
+  document.getElementById('tag-inp').addEventListener('blur', onTagBlur);
+}
+
+function onTagKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const v = e.target.value.trim();
+    if (v && !tagList.includes(v)) { tagList.push(v); renderTags(); document.getElementById('tag-inp').focus(); }
+    else e.target.value = '';
+  } else if (e.key === 'Backspace' && e.target.value === '' && tagList.length) {
+    tagList.pop(); renderTags(); document.getElementById('tag-inp').focus();
+  }
+}
+
+function onTagBlur(e) {
+  const v = e.target.value.trim();
+  if (v && !tagList.includes(v)) { tagList.push(v); renderTags(); }
+}
+
+function saveDrug() {
+  const etken = document.getElementById('f-etken').value.trim();
+  if (!etken) { toast('Etken madde adı gerekli'); return; }
+  const c = cmp(st.editCmpId);
+  const primary = document.getElementById('f-primary').value.trim();
+  const d = { id: st.editDrugId || uid(), etken, primary: primary || (tagList[0] || ''), brands: [...tagList], form: document.getElementById('f-form').value.trim(), note: document.getElementById('f-note').value.trim() };
+  if (st.editDrugId) { const i = c.drugs.findIndex(x => x.id === st.editDrugId); c.drugs[i] = d; }
+  else c.drugs.push(d);
+  save(); toast('Kaydedildi'); openAdminCmp(st.editCmpId);
+}
+
+function deleteDrug() {
+  const d = drug(st.editCmpId, st.editDrugId);
+  confirm(`"${d.etken}" silinsin mi?`, 'Bu işlem geri alınamaz.', () => {
+    const c = cmp(st.editCmpId);
+    c.drugs = c.drugs.filter(d => d.id !== st.editDrugId);
+    save(); toast('İlaç silindi'); openAdminCmp(st.editCmpId);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIN CHANGE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openChangePinForm() {
+  ['f-old-pin','f-new-pin','f-new-pin2'].forEach(id => document.getElementById(id).value = '');
+  nav('change-pin');
+}
+
+function savePinChange() {
+  const old = document.getElementById('f-old-pin').value;
+  const n1  = document.getElementById('f-new-pin').value;
+  const n2  = document.getElementById('f-new-pin2').value;
+  if (old !== D.adminPin) { toast('Mevcut PIN hatalı'); return; }
+  if (!/^\d{4}$/.test(n1)) { toast('Yeni PIN 4 rakam olmalı'); return; }
+  if (n1 !== n2) { toast("PIN'ler eşleşmiyor"); return; }
+  D.adminPin = n1; save(); toast('PIN güncellendi'); nav('admin');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RESET
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function resetData() {
+  confirm('Fabrika ayarlarına dön?', 'Tüm değişiklikler silinir, varsayılan veriler yüklenir.', () => {
+    D = clone(DEFAULTS); save(); toast('Veriler sıfırlandı'); renderAdmin();
+  }, 'Sıfırla');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CONFIRM DIALOG
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function confirm(title, text, cb, okLbl) {
+  confirmCb = cb;
+  document.getElementById('ovl-ttl').textContent = title;
+  document.getElementById('ovl-txt').textContent = text;
+  document.getElementById('ovl-ok').textContent = okLbl || 'Sil';
+  document.getElementById('ovl').style.display = 'flex';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TOAST
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let _tt;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ESCAPE (XSS safe)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function x(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EVENT DELEGATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('click', e => {
+  // data-action navigation
+  const actionEl = e.target.closest('[data-action]');
+  if (actionEl) {
+    const a = actionEl.dataset.action;
+    if (a === 'go-main')       renderMain();
+    if (a === 'go-admin')      renderAdmin();
+    if (a === 'go-admin-cmp')  openAdminCmp(st.editCmpId);
+    if (a === 'go-brands')     openComplaint(st.cmpId);
+    if (a === 'go-pin' || a === 'go-admin') openPin();
+    return;
+  }
+
+  // complaint card (main)
+  const cc = e.target.closest('[data-cid]');
+  if (cc && !cc.dataset.adminCid && !cc.dataset.did) { openComplaint(cc.dataset.cid); return; }
+
+  // brand card
+  const bc = e.target.closest('[data-brand]');
+  if (bc) { openDrug(bc.dataset.cid, bc.dataset.did, bc.dataset.brand); return; }
+
+  // admin complaint list item
+  const ac = e.target.closest('[data-admin-cid]');
+  if (ac) { openAdminCmp(ac.dataset.adminCid); return; }
+
+  // admin drug list item
+  const ad = e.target.closest('[data-admin-did]');
+  if (ad) { openEditDrug(ad.dataset.adminDid); return; }
+
+  // tag remove
+  const tr = e.target.closest('.tag-rm');
+  if (tr) { tagList.splice(+tr.dataset.idx, 1); renderTags(); return; }
+
+  // color picker
+  const co = e.target.closest('.clr-opt');
+  if (co) { selColor(co); return; }
+
+  // pin keys
+  const pk = e.target.closest('.pin-key');
+  if (pk) {
+    if (pk.id === 'pin-del') pinDel();
+    else pinPress(pk.dataset.pin);
+    return;
+  }
+
+  // confirm overlay close
+  if (e.target.id === 'ovl' || e.target.id === 'ovl-cancel') {
+    document.getElementById('ovl').style.display = 'none';
+    confirmCb = null;
+    return;
+  }
+
+  // confirm ok
+  if (e.target.id === 'ovl-ok') {
+    document.getElementById('ovl').style.display = 'none';
+    if (confirmCb) confirmCb();
+    confirmCb = null;
+    return;
+  }
+});
+
+// Button wiring (static buttons)
+document.getElementById('btn-add-cmp').addEventListener('click', openAddCmp);
+document.getElementById('btn-change-pin').addEventListener('click', openChangePinForm);
+document.getElementById('btn-reset').addEventListener('click', resetData);
+document.getElementById('btn-edit-cmp').addEventListener('click', openEditCmp);
+document.getElementById('btn-del-cmp').addEventListener('click', deleteCmp);
+document.getElementById('btn-add-drug').addEventListener('click', openAddDrug);
+document.getElementById('btn-save-drug').addEventListener('click', saveDrug);
+document.getElementById('btn-del-drug').addEventListener('click', deleteDrug);
+document.getElementById('btn-save-cmp').addEventListener('click', saveCmp);
+document.getElementById('btn-save-pin').addEventListener('click', savePinChange);
+document.querySelector('.hdr-btn[data-action="go-admin"]').addEventListener('click', openPin);
+
+// Fix: admin button on main header triggers PIN
+document.querySelectorAll('[data-action="go-admin"]').forEach(el => {
+  el.addEventListener('click', e => { e.stopPropagation(); openPin(); });
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SEARCH
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function doSearch(q) {
+  const grid = document.getElementById('cmp-grid');
+  const res  = document.getElementById('search-results');
+  const clr  = document.getElementById('search-clear');
+  q = q.trim();
+  clr.style.display = q ? '' : 'none';
+  if (!q) {
+    res.style.display = 'none';
+    res.innerHTML = '';
+    grid.style.display = '';
+    return;
+  }
+  grid.style.display = 'none';
+  const ql = q.toLowerCase();
+  const hits = [];
+  D.complaints.forEach(c => {
+    c.drugs.forEach(d => {
+      const inEtken   = d.etken.toLowerCase().includes(ql);
+      const inPrimary = (d.primary || '').toLowerCase().includes(ql);
+      const inBrands  = d.brands.some(b => b.toLowerCase().includes(ql));
+      if (inEtken || inPrimary || inBrands) hits.push({ c, d });
+    });
+  });
+  if (!hits.length) {
+    res.innerHTML = `<div class="sr-empty">Sonuç bulunamadı</div>`;
+  } else {
+    res.innerHTML = hits.map(({ c, d }) =>
+      `<div class="sr-card" data-cid="${c.id}" data-did="${d.id}" data-brand="${x(d.primary || d.brands[0])}">
+        <div style="flex:1;min-width:0">
+          <div class="sr-name">${x(d.primary || d.brands[0])}</div>
+          <div class="sr-meta">
+            <span class="sr-cat" style="background:${c.color}">${x(c.name)}</span>
+            <span class="sr-etken">${x(d.etken)}</span>
+          </div>
+        </div>
+        <div class="sr-arr">›</div>
+      </div>`
+    ).join('');
+  }
+  res.style.display = '';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BOOT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+load();
+renderMain();
+document.getElementById('search-inp').addEventListener('input', e => doSearch(e.target.value));
+document.getElementById('search-clear').addEventListener('click', () => {
+  document.getElementById('search-inp').value = '';
+  doSearch('');
+  document.getElementById('search-inp').focus();
+});
+</script>
+</body>
+</html>
