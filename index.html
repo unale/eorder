@@ -302,6 +302,55 @@
     .stock-toggle.yok { background: #FFEBEE; color: #C62828; border: 2px solid #EF9A9A; }
     .stock-toggle.var { background: #E8F5E9; color: #2E7D32; border: 2px solid #A5D6A7; }
 
+    /* ── Quiz ── */
+    .quiz-banner {
+      background: linear-gradient(135deg, #1565C0, #283593);
+      color: #fff; border-radius: var(--radius);
+      padding: 16px 18px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; user-select: none;
+      box-shadow: 0 4px 14px rgba(21,101,192,.35);
+    }
+    .quiz-banner:active { opacity: .85; transform: scale(.98); }
+    .quiz-banner-icon { font-size: 28px; flex-shrink: 0; }
+    .quiz-banner-ttl { font-size: 16px; font-weight: 700; }
+    .quiz-banner-sub { font-size: 12px; opacity: .8; margin-top: 2px; }
+    .quiz-banner-arr { font-size: 20px; opacity: .7; margin-left: auto; }
+
+    .quiz-prog-bar { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+    .quiz-prog-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s; }
+
+    .quiz-q-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 28px 20px; text-align: center;
+      margin-bottom: 16px; box-shadow: var(--shadow);
+    }
+    .quiz-q-lbl { font-size: 12px; font-weight: 700; color: var(--text-lt); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 14px; }
+    .quiz-brand { font-size: 30px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 12px; }
+    .quiz-q-cat { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; border-radius: 10px; padding: 3px 10px; }
+
+    .quiz-opt {
+      width: 100%; border: 2px solid var(--border);
+      background: var(--surface); border-radius: var(--radius);
+      padding: 15px 16px; font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-bottom: 10px; text-align: left;
+      color: var(--text); font-family: inherit;
+    }
+    .quiz-opt:active:not(:disabled) { background: var(--primary-lt); border-color: var(--primary); }
+    .quiz-opt.correct { background: #E8F5E9; border-color: #2E7D32; color: #2E7D32; }
+    .quiz-opt.wrong   { background: #FFEBEE; border-color: #C62828; color: #C62828; }
+    .quiz-opt:disabled { cursor: default; }
+
+    .quiz-fb { font-size: 14px; font-weight: 700; text-align: center; padding: 12px; border-radius: var(--radius); margin-top: 4px; }
+    .quiz-fb.correct { background: #E8F5E9; color: #2E7D32; }
+    .quiz-fb.wrong   { background: #FFEBEE; color: #C62828; }
+
+    .quiz-result-card { background: var(--surface); border-radius: var(--radius); padding: 40px 24px; text-align: center; box-shadow: var(--shadow); }
+    .quiz-result-emoji { font-size: 56px; margin-bottom: 16px; }
+    .quiz-result-score { font-size: 52px; font-weight: 800; color: var(--primary); }
+    .quiz-result-pct { font-size: 18px; color: var(--text-lt); margin-top: 4px; }
+    .quiz-result-msg { font-size: 16px; font-weight: 600; margin-top: 16px; color: var(--text); }
+
     /* ── FAB ── */
     .fab {
       position: fixed; bottom: 24px; right: 20px;
@@ -327,6 +376,14 @@
     <button class="hdr-btn" data-action="go-admin" title="Admin">&#9881;</button>
   </div>
   <div class="scroll">
+    <div class="quiz-banner" id="btn-start-quiz">
+      <div class="quiz-banner-icon">🎯</div>
+      <div>
+        <div class="quiz-banner-ttl">Quiz Modu</div>
+        <div class="quiz-banner-sub">Etken maddeleri ezberle — 10 soru</div>
+      </div>
+      <div class="quiz-banner-arr">›</div>
+    </div>
     <div class="search-wrap">
       <span class="search-icon">&#128269;</span>
       <input type="text" id="search-inp" class="search-inp" placeholder="İlaç veya etken madde ara…" autocomplete="off" autocorrect="off" spellcheck="false">
@@ -532,6 +589,26 @@
   </div>
 </div>
 
+<!-- ══ VIEW: QUIZ ══ -->
+<div id="view-quiz" class="view">
+  <div class="hdr">
+    <button class="hdr-btn" id="quiz-exit">✕</button>
+    <span class="hdr-title">Quiz Modu</span>
+    <span id="quiz-counter" style="color:rgba(255,255,255,.85);font-size:13px;font-weight:600;min-width:44px;text-align:right"></span>
+  </div>
+  <div class="scroll"><div id="quiz-content"></div></div>
+</div>
+
+<!-- ══ VIEW: QUIZ END ══ -->
+<div id="view-quiz-end" class="view">
+  <div class="hdr">
+    <div class="hdr-sp"></div>
+    <span class="hdr-title">Sonuç</span>
+    <div class="hdr-sp"></div>
+  </div>
+  <div class="scroll"><div id="quiz-result-content"></div></div>
+</div>
+
 <!-- ══ FAB ══ -->
 <button class="fab" id="btn-open-feedback">&#128172; Öneri / Geri Bildirim</button>
 
@@ -602,6 +679,15 @@ const DEFAULTS = {
       { id:'r3', etken:'Metoprolol',  primary:'Beloc',               brands:['Beloc','Mekard','Metloc'],         form:'5 mg/5 mL IV Ampul',     note:'Beta-bloker' },
       { id:'r4', etken:'Diltiazem',   primary:'Diltizem',            brands:['Diltizem','Dilemy','Tiacard'],     form:'25 mg/5 mL IV Ampul',    note:'Kalsiyum kanal blokeri' },
       { id:'r5', etken:'Digoksin',    primary:'Digoksin',            brands:['Digoksin','Lanoxin'],              form:'0.5 mg/2 mL IV Ampul',   note:'' }
+    ]},
+    { id:'kalpyet', name:'Kalp Yetmezliği', color:'#1A237E', drugs:[
+      { id:'ky1', etken:'Furosemid',      primary:'Lasix',              brands:['Lasix','Furomid','Furoson'],                  form:'20–80 mg IV/IM Ampul',         note:'Loop diüretik; akut ödem' },
+      { id:'ky2', etken:'Nitrogliserin',  primary:'Nitrat / Nitrolingual', brands:['Nitrolingual','Trinity','Perlinganit'],    form:'10 mg/10 mL IV / SL sprey',    note:'Vazodilatör; preload azaltır' },
+      { id:'ky3', etken:'Dobutamin',      primary:'Dobutrex',           brands:['Dobutrex','Dobuthaver'],                      form:'250 mg/20 mL IV Flakon',        note:'İnotropik; β1 agonist' },
+      { id:'ky4', etken:'Dopamin',        primary:'Dopamin',            brands:['Dopamin','Dopasel','Bopadren'],                form:'200 mg/5 mL IV Ampul (infüzyon)', note:'Düşük doz: renal · Orta: kardiyak · Yüksek: vazopresör' },
+      { id:'ky5', etken:'Norepinefrin',   primary:'Noradrenalin',       brands:['Noradrenalin','Norepinefrin'],                 form:'4 mg/4 mL IV Ampul (infüzyon)', note:'Kardiyojenik şok; güçlü vazopresör + hafif inotrop' },
+      { id:'ky6', etken:'Levosimendan',   primary:'Simdax',             brands:['Simdax'],                                     form:'12.5 mg/5 mL IV Flakon',        note:'Kalsiyum sensitizer; inotrop + vazodilatör' },
+      { id:'ky7', etken:'Milrinon',       primary:'Corotrope',          brands:['Corotrope'],                                  form:'10 mg/10 mL IV Ampul (infüzyon)', note:'PDE3 inhibitör; inotrop + vazodilatör' }
     ]},
     { id:'solunum', name:'Solunum Sıkıntısı', color:'#0277BD', drugs:[
       { id:'s1', etken:'Budesonid',            primary:'Pulmicort',  brands:['Pulmicort','Brecur','Cortair','Pulmien'],    form:'0.5 mg/2 mL Nebülizasyon',   note:'' },
@@ -1160,6 +1246,10 @@ document.addEventListener('click', e => {
   const ad = e.target.closest('[data-admin-did]');
   if (ad) { openEditDrug(ad.dataset.adminDid); return; }
 
+  // quiz answer
+  const qo = e.target.closest('[data-quiz-opt]');
+  if (qo) { answerQuiz(qo.dataset.quizOpt); return; }
+
   // stock resolve (admin)
   const sr = e.target.closest('[data-stock-resolve]');
   if (sr) { D.stock[sr.dataset.stockResolve] = true; save(); renderStockAlerts(); return; }
@@ -1215,6 +1305,8 @@ document.getElementById('btn-del-drug').addEventListener('click', deleteDrug);
 document.getElementById('btn-save-cmp').addEventListener('click', saveCmp);
 document.getElementById('btn-save-pin').addEventListener('click', savePinChange);
 document.getElementById('btn-open-feedback').addEventListener('click', openFeedback);
+document.getElementById('btn-start-quiz').addEventListener('click', startQuiz);
+document.getElementById('quiz-exit').addEventListener('click', renderMain);
 document.getElementById('btn-send-fb').addEventListener('click', saveFeedback);
 document.querySelector('.hdr-btn[data-action="go-admin"]').addEventListener('click', openPin);
 
@@ -1222,6 +1314,92 @@ document.querySelector('.hdr-btn[data-action="go-admin"]').addEventListener('cli
 document.querySelectorAll('[data-action="go-admin"]').forEach(el => {
   el.addEventListener('click', e => { e.stopPropagation(); openPin(); });
 });
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// QUIZ
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let quizSt = { questions: [], current: 0, score: 0, answered: false };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  const allDrugs = [];
+  D.complaints.forEach(c => c.drugs.forEach(d => allDrugs.push({ ...d, cmpName: c.name, cmpColor: c.color })));
+  const pool = shuffle(allDrugs).slice(0, 10);
+  quizSt.questions = pool.map(d => {
+    const wrongs = [...new Set(
+      shuffle(allDrugs.filter(x => x.etken !== d.etken)).map(x => x.etken)
+    )].slice(0, 3);
+    const options = shuffle([d.etken, ...wrongs]);
+    return { brand: d.primary || d.brands[0], correct: d.etken, options, cmpName: d.cmpName, cmpColor: d.cmpColor };
+  });
+  quizSt.current = 0; quizSt.score = 0; quizSt.answered = false;
+  renderQuestion();
+  nav('quiz');
+}
+
+function renderQuestion() {
+  const q = quizSt.questions[quizSt.current];
+  const total = quizSt.questions.length;
+  document.getElementById('quiz-counter').textContent = `${quizSt.current + 1} / ${total}`;
+  document.getElementById('quiz-content').innerHTML = `
+    <div class="quiz-prog-bar"><div class="quiz-prog-fill" style="width:${Math.round(quizSt.current/total*100)}%"></div></div>
+    <div class="quiz-q-card">
+      <div class="quiz-q-lbl">Bu ilacın etken maddesi nedir?</div>
+      <div class="quiz-brand">${x(q.brand)}</div>
+      <span class="quiz-q-cat" style="background:${q.cmpColor}">${x(q.cmpName)}</span>
+    </div>
+    ${q.options.map(opt => `<button class="quiz-opt" data-quiz-opt="${x(opt)}">${x(toEorder(opt))}</button>`).join('')}
+    <div id="quiz-fb"></div>`;
+}
+
+function answerQuiz(chosen) {
+  if (quizSt.answered) return;
+  quizSt.answered = true;
+  const q = quizSt.questions[quizSt.current];
+  const correct = chosen === q.correct;
+  if (correct) quizSt.score++;
+  document.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.quizOpt === q.correct) btn.classList.add('correct');
+    else if (btn.dataset.quizOpt === chosen && !correct) btn.classList.add('wrong');
+  });
+  document.getElementById('quiz-fb').innerHTML = correct
+    ? '<div class="quiz-fb correct">✓ Doğru!</div>'
+    : `<div class="quiz-fb wrong">✗ Yanlış — Doğru: ${x(toEorder(q.correct))}</div>`;
+  setTimeout(() => {
+    quizSt.current++; quizSt.answered = false;
+    if (quizSt.current >= quizSt.questions.length) endQuiz();
+    else renderQuestion();
+  }, 1400);
+}
+
+function endQuiz() {
+  const { score, questions } = quizSt;
+  const total = questions.length;
+  const pct = Math.round(score / total * 100);
+  const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
+  const msg = pct >= 80 ? 'Mükemmel!' : pct >= 50 ? 'İyi gidiyor, devam et!' : 'Biraz daha çalış!';
+  document.getElementById('quiz-result-content').innerHTML = `
+    <div class="quiz-result-card">
+      <div class="quiz-result-emoji">${emoji}</div>
+      <div class="quiz-result-score">${score} / ${total}</div>
+      <div class="quiz-result-pct">%${pct} başarı</div>
+      <div class="quiz-result-msg">${msg}</div>
+      <button class="btn btn-primary" id="quiz-retry" style="margin-top:28px">Tekrar Oyna</button>
+      <button class="btn btn-sec" id="quiz-home" style="margin-top:0">Ana Sayfaya Dön</button>
+    </div>`;
+  document.getElementById('quiz-retry').addEventListener('click', startQuiz);
+  document.getElementById('quiz-home').addEventListener('click', renderMain);
+  nav('quiz-end');
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // SEARCH
